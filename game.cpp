@@ -132,16 +132,16 @@ void Game_Run(HWND hWnd) {
 		//INSERT CODE DOWN HERE
 
 		//move character
-		if ( Key_Down(DIK_U)) {
+		if ( Key_Down(DIK_UP)) {
 			char1.y -= CHAR_SPEED;
 		}
-		if (Key_Down(DIK_J)) {
+		if (Key_Down(DIK_DOWN)) {
 			char1.y += CHAR_SPEED;
 		}
-		if (Key_Down(DIK_H)) {
+		if (Key_Down(DIK_LEFT)) {
 			char1.x -= CHAR_SPEED;
 		}
-		if (Key_Down(DIK_K)) {
+		if (Key_Down(DIK_RIGHT)) {
 			char1.x += CHAR_SPEED;
 		}
 
