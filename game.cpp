@@ -39,37 +39,42 @@ LPDIRECT3DSURFACE9 bg;
 long start = GetTickCount();
 
 //init the game
-int Game_Init(HWND hWnd) {
+int game::Game_Init(HWND hWnd) {
 	char s[20];
 	int n;
 
+	MainCharacter *main = new MainCharacter(133,133);
 
+	//background = Graphics::LoadSurface((char*)"myBackground.bmp");
 	//init background
-	bg = LoadSurface((char*) "wall.bmp", D3DCOLOR_XRGB(0, 0,0));
+	bg = dxgraphics::LoadSurface((char*)"wall.bmp");
 
-	character = LoadSurface((char*) "s.png", D3DCOLOR_XRGB(255,0,255));
+	character = dxgraphics::LoadSurface((char*) "s.png");
 
-	boulder_image = LoadSurface((char*)"boulder.png", D3DCOLOR_XRGB(255, 0, 255));
+	//boulder_image = LoadSurface((char*)"boulder.png", D3DCOLOR_XRGB(255, 0, 255));
 
-	ball_image = LoadSurface((char*)"ball.bmp", D3DCOLOR_XRGB(255, 0, 255));
+	//ball_image = LoadSurface((char*)"ball.bmp", D3DCOLOR_XRGB(255, 0, 255));
 
 	//init keyboard
-	if (!Init_Keyboard(hWnd)) {
+	if (!dxinput::InitKeyboard(hWnd)) {
 		MessageBox(hWnd, "Error initializing the keyboard", "Error", MB_OK);
 		return 0;
 	}
 
 	//init mouse
-	if (!Init_Mouse(hWnd)) {
+	if (!dxinput::InitMouse(hWnd)) {
 		MessageBox(hWnd, "Error initializing the mouse", "Error", MB_OK);
 		return 0;
 	}
 
+	
+
+	
 	//init torch anim
 	for (n = 0; n <= 6; n++)
 	{
 		sprintf_s(s, "fire%d.bmp", n + 1);
-		Torch_image[n] = LoadSurface(s, D3DCOLOR_XRGB(255, 0, 255));
+		
 		if (Torch_image == NULL)
 			return 0;
 	}
@@ -112,15 +117,15 @@ int Game_Init(HWND hWnd) {
 }
 
 //the main game loop
-void Game_Run(HWND hWnd) {
+void game::Game_Run(HWND hWnd) {
 	//make sure the Direct3D device is valid
-	if (d3ddev == NULL) {
+	if (GameGlobal::d3ddev == NULL) {
 		return;
 	}
 
 	//update mouse & keyboard
-	Poll_Mouse();
-	Poll_Keyboard();
+	dxinput::PollMouse();
+	dxinput::PollKeyboard();
 
 	//---UPDATE PER FRAME---
 	//after short delay, ready for next frame?
@@ -132,16 +137,16 @@ void Game_Run(HWND hWnd) {
 		//INSERT CODE DOWN HERE
 
 		//move character
-		if ( Key_Down(DIK_UP)) {
+		if (dxinput::KeyDown(DIK_UP)) {
 			char1.y -= CHAR_SPEED;
 		}
-		if (Key_Down(DIK_DOWN)) {
+		if (dxinput::KeyDown(DIK_DOWN)) {
 			char1.y += CHAR_SPEED;
 		}
-		if (Key_Down(DIK_LEFT)) {
+		if (dxinput::KeyDown(DIK_LEFT)) {
 			char1.x -= CHAR_SPEED;
 		}
-		if (Key_Down(DIK_RIGHT)) {
+		if (dxinput::KeyDown(DIK_RIGHT)) {
 			char1.x += CHAR_SPEED;
 		}
 
@@ -208,23 +213,23 @@ void Game_Run(HWND hWnd) {
 				if (normalxBoulder == 1.0f) //right
 				{
 					Boulder.x -= CHAR_SPEED;
-					MessageBox(hWnd, "right","Debug",MB_OK);
+					
 				}
 				if (normalxBoulder < -0.01f) //left
 				{
 					Boulder.x += CHAR_SPEED; 
-					MessageBox(hWnd,"left", "Debug", MB_OK);
+					
 					
 				}
 				if (normalyBoulder > 0.01f) //bottom
 				{
 					Boulder.y -= CHAR_SPEED;
-					MessageBox(hWnd, "Bottom", "Debug", MB_OK);
+					
 				}
 				if (normalyBoulder < -0.01f) // up
 				{
 					Boulder.y += CHAR_SPEED;
-					//MessageBox(hWnd, "Up", "Debug", MB_OK);
+				
 				}
 			}
 		}
@@ -236,9 +241,11 @@ void Game_Run(HWND hWnd) {
 	//-----------------------
 
 	//START RENDERING
-	if (d3ddev->BeginScene()) {
+	if (GameGlobal::d3ddev->BeginScene()) {
 		//clear the entire background
-		d3ddev->ColorFill(backbuffer, NULL, D3DCOLOR_XRGB(0, 0, 0));
+		//GameGlobal::d3ddev->ColorFill(backbuffer, NULL, D3DCOLOR_XRGB(0, 0, 0));
+		GameGlobal::d3ddev->StretchRect(bg, NULL, GameGlobal::backbuffer, NULL, D3DTEXF_NONE);
+		
 		/*d3ddev->StretchRect(back, NULL, backbuffer, NULL, D3DTEXF_NONE);*/
 
 
@@ -272,18 +279,18 @@ void Game_Run(HWND hWnd) {
 		bgRect.bottom = SCREEN_HEIGHT;
 
 		//draw the paddle sprite to back buffer
-		d3ddev->StretchRect(bg, NULL, backbuffer, &bgRect, D3DTEXF_NONE);
-		d3ddev->StretchRect(character, NULL, backbuffer, &char1Rect, D3DTEXF_NONE);
-		d3ddev->StretchRect(boulder_image, NULL, backbuffer, &BoulderRect, D3DTEXF_NONE);
-		d3ddev->StretchRect(Torch_image[Torch.curframe], NULL, backbuffer, &TorchRect, D3DTEXF_NONE);
-
+		//GameGlobal::d3ddev->StretchRect(bg, NULL, backbuffer, &bgRect, D3DTEXF_NONE);
+		GameGlobal::d3ddev->StretchRect(character, NULL,GameGlobal::backbuffer, &char1Rect, D3DTEXF_NONE);
+		//GameGlobal::d3ddev->StretchRect(boulder_image, NULL, backbuffer, &BoulderRect, D3DTEXF_NONE);
+		//GameGlobal::d3ddev->StretchRect(Torch_image[Torch.curframe], NULL, backbuffer, &TorchRect, D3DTEXF_NONE);
+		
 
 		//stop rendering
-		d3ddev->EndScene();
+		GameGlobal::d3ddev->EndScene();
 	}
 
 	//display the back buffer on the screen
-	d3ddev->Present(NULL, NULL, NULL, NULL);
+	GameGlobal::d3ddev->Present(NULL, NULL, NULL, NULL);
 
 	//check for escape key (to exit program)
 	if (KEY_DOWN(VK_ESCAPE)) {
@@ -300,14 +307,14 @@ void Game_Run(HWND hWnd) {
 	}*/
 }
 
-void Game_End(HWND hWnd) {
+void game::Game_End(HWND hWnd) {
 	int n;
 	
 	bg->Release();
-	character->Release();
-	for (n = 0; n <= 6; n++)
+	//character->Release();
+	/*for (n = 0; n <= 6; n++)
 	{
 		Torch_image[n]->Release();
 	}
-	boulder_image->Release();
+	boulder_image->Release();*/
 }

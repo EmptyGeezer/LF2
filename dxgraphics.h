@@ -1,15 +1,16 @@
-
-#ifndef _DXGRAPHICS_H
-#define _DXGRAPHICS_H
+#pragma once
 
 #include <d3d9.h>
 #include <d3dx9.h>
+#include "GameGlobal.h"
 
-int Init_Direct3D(HWND, int, int);
-LPDIRECT3DSURFACE9 LoadSurface(char*, D3DCOLOR);
+class dxgraphics
+{
+public:
+	dxgraphics();
+	~dxgraphics();
 
-extern LPDIRECT3D9 d3d;
-extern LPDIRECT3DDEVICE9 d3ddev;
-extern LPDIRECT3DSURFACE9 backbuffer;
-
-#endif // !_DXGRAPHICS_H
+	static int Init_Direct3D(HWND, int, int);
+	static LPDIRECT3DSURFACE9 LoadSurface(char*);
+	static LPDIRECT3DTEXTURE9 LoadTexture(char*, D3DCOLOR);
+};

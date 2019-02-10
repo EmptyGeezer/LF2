@@ -1,28 +1,24 @@
 #pragma once
-#ifndef _DXINPUT_H
-#define _DXINPUT_H
 
 #include <dinput.h>
 
-//function prototypes
-int Init_DirectInput(HWND);
+class dxinput
+{
+public:
+	dxinput();
+	~dxinput();
 
-int Init_Keyboard(HWND);
-void Poll_Keyboard();
-int Key_Down(int);
-void Kill_Keyboard();
+	static int Init_DirectInput(HWND);
 
-int Init_Mouse(HWND);
-void Poll_Mouse();
-int Mouse_Button(int);
-int Mouse_X();
-int Mouse_Y();
-void Kill_Mouse();
+	static int InitKeyboard(HWND);
+	static void PollKeyboard();
+	static int KeyDown(int);
+	static void KillKeyboard();
 
-//DirectInput objects, devices and states
-extern LPDIRECTINPUT8 dinput;
-extern LPDIRECTINPUTDEVICE8 dimouse;
-extern LPDIRECTINPUTDEVICE8 dikeyboard;
-extern DIMOUSESTATE mouse_state;
-
-#endif
+	static int InitMouse(HWND);
+	static void PollMouse();
+	static int MouseButton(int);
+	static int Mouse_X();
+	static int Mouse_Y();
+	static void KillMouse();
+};

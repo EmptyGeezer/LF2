@@ -2,28 +2,22 @@
 #include "dxgraphics.h"
 #include "dxinput.h"
 #include "game.h"
-
+#include "GameGlobal.h"
 
 
 LRESULT WINAPI WinProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	switch (msg) {
 	case WM_DESTROY:
 		//release the Direct3D device
-		if (d3ddev != NULL) {
-			d3ddev->Release();
+		if (GameGlobal::d3ddev != NULL) {
+			GameGlobal::d3ddev->Release();
 		}
 		//release the Direct3D object
-		if (d3d != NULL) {
-			d3d->Release();
-		}
-		//release input objects
-		Kill_Keyboard();
-		Kill_Mouse();
-		if (dinput != NULL) {
-			dinput->Release();
+		if (GameGlobal::d3d != NULL) {
+			GameGlobal::d3d->Release();
 		}
 		//shutdown function
-		Game_End(hWnd);
+		game::Game_End(hWnd);
 		//tell Windows to kill this program
 		PostQuitMessage(0);
 		return 0;
@@ -46,7 +40,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance) {
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wc.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
 	wc.lpszMenuName = NULL;
-	wc.lpszClassName = "Create_Surface";
+	wc.lpszClassName = "Megaman_X3";
 	wc.hIconSm = NULL;
 	//Dang ky lop cua so
 	return RegisterClassEx(&wc);
@@ -64,13 +58,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	HWND hWnd;
 	//Tao 1 cua so
 	hWnd = CreateWindow(
-		"Create_Surface",	//window class
-		"Create Surface",	//title bar
-		WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,	//window style
+		"Megaman_X3",	//window class
+		"Megaman_X3",	//title bar
+		WS_OVERLAPPEDWINDOW,	//window style
 		CW_USEDEFAULT,	//x position of window
 		CW_USEDEFAULT,	//y position of window
-		SCREEN_WIDTH,	//width of the window
-		SCREEN_HEIGHT,	//height of the window
+		GameGlobal::wndWidth,	//width of the window
+		GameGlobal::wndHeight,	//height of the window
 		NULL,	//parent window
 		NULL,	//menu
 		hInstance,	//application instance
@@ -86,25 +80,27 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
 
-	if (!Init_Direct3D(hWnd, SCREEN_WIDTH, SCREEN_HEIGHT)) {
+	if (!dxgraphics::Init_Direct3D(hWnd, GameGlobal::wndWidth, GameGlobal::wndHeight)) {
+		MessageBox(hWnd, "Error initializing Direct3D", "Error", MB_OK);
 		return 0;
 	}
 
-	if (!Init_DirectInput(hWnd)) {
+	/*if (!Sound::Init_DirectSound(hWnd)) {
+		MessageBox(hWnd, "Error initializing DirectSound", "Error", MB_OK);
+		return 0;
+	}*/
+
+	if (!dxinput::Init_DirectInput(hWnd)) {
 		MessageBox(hWnd, "Error initializing DirectInput", "Error", MB_OK);
+		return 0;
 	}
 
 	//Khoi tao game
-	if (!Game_Init(hWnd)) {
+	if (game::Game_Init(hWnd) == 0) {
 		MessageBox(hWnd, "Error initializing the game", "Error", MB_OK);
 		return 0;
 	}
 
-	//Khoi tao am thanh
-	/*if (!Init_DirectSound(hWnd))
-	{
-		MessageBox(hWnd, "Error initialize DirectSond", "Error", MB_OK);
-	}*/
 
 	//Vong lap thong diep chinh
 	int done = 0;
@@ -120,7 +116,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		}
 		else {
 			//xu ly game
-			Game_Run(hWnd);
+			game::Game_Run(hWnd);
 		}
 	}
 

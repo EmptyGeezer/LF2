@@ -1,0 +1,4 @@
+﻿  GameGlobal.cpp
+d:\triet\study\game\lf2\lf2\lf2\gameglobal.cpp(65): warning C4244: 'return': conversion from 'double' to 'int', possible loss of data
+d:\triet\study\game\lf2\lf2\lf2\gameglobal.cpp(71): warning C4244: 'return': conversion from 'double' to 'int', possible loss of data
+  LF2.vcxproj -> D:\TRIET\STUDY\Game\LF2\LF2\Debug\LF2.exe

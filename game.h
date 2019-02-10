@@ -6,9 +6,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
-
-
+#include "MainCharacter.h"
+#include "Animation.h"
+#include "GameGlobal.h"
 #include "dxgraphics.h"
 #include "dxinput.h"
 #include "collision.h"
@@ -25,10 +25,16 @@
 #define KEY_UP(vk_code)((GetAsyncKeyState(vk_code) & 0x8000) ? 1 : 0)
 
 //function prototypes
-int Game_Init(HWND);
-void Game_Run(HWND);
-void Game_End(HWND);
+class game
+{
+public:
+	game();
+	~game();
 
+	static int Game_Init(HWND);
+	static void Game_Run(HWND);
+	static void Game_End(HWND);
+};
 //typedef struct {
 //	int x, y;
 //	int width, height;

@@ -7,10 +7,19 @@ LPDIRECTINPUTDEVICE8 dimouse;
 LPDIRECTINPUTDEVICE8 dikeyboard;
 DIMOUSESTATE mouse_state;
 
+dxinput::dxinput()
+{
+}
+
+
+dxinput::~dxinput()
+{
+}
+
 //keyboard input
 char keys[256];
 
-int Init_DirectInput(HWND hWnd) {
+int dxinput::Init_DirectInput(HWND hWnd) {
 	//init DirectInput object
 	HRESULT result = DirectInput8Create(
 		GetModuleHandle(NULL),
@@ -40,7 +49,7 @@ int Init_DirectInput(HWND hWnd) {
 }
 
 #pragma region Keyboard
-int Init_Keyboard(HWND hWnd) {
+int dxinput::InitKeyboard(HWND hWnd) {
 	//set the data format for keyboard input
 	HRESULT result = dikeyboard->SetDataFormat(&c_dfDIKeyboard);
 	if (result != DI_OK) {
@@ -62,15 +71,15 @@ int Init_Keyboard(HWND hWnd) {
 	return 1;
 }
 
-void Poll_Keyboard() {
+void dxinput::PollKeyboard() {
 	dikeyboard->GetDeviceState(sizeof(keys), (LPVOID)&keys);
 }
 
-int Key_Down(int key) {
+int dxinput::KeyDown(int key) {
 	return (keys[key] & 0x80);
 }
 
-void Kill_Keyboard() {
+void dxinput::KillKeyboard() {
 	if (dikeyboard != NULL) {
 		dikeyboard->Unacquire();
 		dikeyboard->Release();
@@ -80,7 +89,7 @@ void Kill_Keyboard() {
 #pragma endregion
 
 #pragma region Mouse
-int Init_Mouse(HWND hWnd) {
+int dxinput::InitMouse(HWND hWnd) {
 	//set data format for mouse input
 	HRESULT result = dimouse->SetDataFormat(&c_dfDIMouse);
 	if (result != DI_OK) {
@@ -104,22 +113,22 @@ int Init_Mouse(HWND hWnd) {
 	return 1;
 }
 
-void Poll_Mouse() {
+void dxinput::PollMouse() {
 	dimouse->GetDeviceState(sizeof(mouse_state), (LPVOID)&mouse_state);
 }
 
-int Mouse_Button(int button) {
+int dxinput::MouseButton(int button) {
 	return BUTTON_DOWN(mouse_state, button);
 }
 
-int Mouse_X() {
+int dxinput::Mouse_X() {
 	return mouse_state.lX;
 }
-int Mouse_Y() {
+int dxinput::Mouse_Y() {
 	return mouse_state.lY;
 }
 
-void Kill_Mouse() {
+void dxinput::KillMouse() {
 	if (dimouse != NULL) {
 		dimouse->Unacquire();
 		dimouse->Release();

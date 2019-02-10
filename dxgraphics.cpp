@@ -1,13 +1,12 @@
 ﻿#include "dxgraphics.h"
 
-LPDIRECT3D9 d3d = NULL;
-LPDIRECT3DDEVICE9 d3ddev = NULL;
-LPDIRECT3DSURFACE9 backbuffer = NULL;
 
-int Init_Direct3D(HWND hWnd, int width, int height) {
+LPDIRECT3DDEVICE9 device = NULL;
+
+int dxgraphics::Init_Direct3D(HWND hWnd, int width, int height) {
 	//Init Direct3D
-	d3d = Direct3DCreate9(D3D_SDK_VERSION);
-	if (d3d == NULL) {
+	GameGlobal::d3d = Direct3DCreate9(D3D_SDK_VERSION);
+	if (GameGlobal::d3d == NULL) {
 		MessageBox(hWnd, "Error initializing Direct3D", "Error", MB_OK);
 		return 0;
 	}
@@ -24,30 +23,33 @@ int Init_Direct3D(HWND hWnd, int width, int height) {
 	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD; // Phương thức swap của Buffer
 
 	//create Direct3D device
-	d3d->CreateDevice(
+	GameGlobal::d3d->CreateDevice(
 		D3DADAPTER_DEFAULT,
 		D3DDEVTYPE_HAL,
 		hWnd,
 		D3DCREATE_HARDWARE_VERTEXPROCESSING,
 		&d3dpp,
-		&d3ddev
+		&device
 	);
 
-	if (d3ddev == NULL) {
+	if (device == NULL) {
 		MessageBox(hWnd, "Error creating Direct3D device", "Error", MB_OK);
 		return 0;
 	}
 
+	//Set current device
+	GameGlobal::d3ddev = device;
+
 	//clear the backbuffer to black
-	d3ddev->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
+	device->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
 
 	//create pointer to the back buffer
-	d3ddev->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &backbuffer);
+	device->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &GameGlobal::backbuffer);
 
 	return 1;
 }
 
-LPDIRECT3DSURFACE9 LoadSurface(char *filename, D3DCOLOR transcolor) {
+LPDIRECT3DSURFACE9 dxgraphics::LoadSurface(char *filename) {
 	LPDIRECT3DSURFACE9 image = NULL;
 	D3DXIMAGE_INFO info;
 	HRESULT result;
@@ -58,7 +60,7 @@ LPDIRECT3DSURFACE9 LoadSurface(char *filename, D3DCOLOR transcolor) {
 		return NULL;
 	}
 	//create surface
-	result = d3ddev->CreateOffscreenPlainSurface(
+	result = GameGlobal::d3ddev->CreateOffscreenPlainSurface(
 		info.Width, //width of the surface
 		info.Height,
 		D3DFMT_X8R8G8B8, //surface format
@@ -79,7 +81,7 @@ LPDIRECT3DSURFACE9 LoadSurface(char *filename, D3DCOLOR transcolor) {
 		filename, //source filename
 		NULL, //source rectangle
 		D3DX_DEFAULT, //controls how image is filtered
-		transcolor, //for transparency (0 for none)
+		D3DCOLOR_XRGB(0, 0, 0), //for transparency (0 for none)
 		NULL //source image info (usually NULL)
 	);
 
@@ -88,4 +90,43 @@ LPDIRECT3DSURFACE9 LoadSurface(char *filename, D3DCOLOR transcolor) {
 		return NULL;
 	}
 	return image;
+}
+
+LPDIRECT3DTEXTURE9 dxgraphics::LoadTexture(char *filename, D3DCOLOR transcolor) {
+	//the texture pointer
+	LPDIRECT3DTEXTURE9 texture = NULL;
+
+	//the struct for reading bitmap file info
+	D3DXIMAGE_INFO info;
+
+	HRESULT result;
+	//get width & height from bitmap file
+	result = D3DXGetImageInfoFromFile(filename, &info);
+	if (result != D3D_OK) {
+		return NULL;
+	}
+
+	//create the new texture by loading bitmap image file
+	D3DXCreateTextureFromFileEx(
+		GameGlobal::d3ddev,//Direct3D device object
+		filename,			//bitmap filename
+		info.Width,			//bitmap img width
+		info.Height,		//bitmap img height
+		1,					//mip-map levels (1 for no chain)
+		D3DPOOL_DEFAULT,
+		D3DFMT_UNKNOWN,
+		D3DPOOL_DEFAULT,
+		D3DX_DEFAULT,
+		D3DX_DEFAULT,
+		transcolor,			//color key for transparency
+		&info,				//bitmap file info (from loaded file)
+		NULL,				//color palette
+		&texture			//destination texture
+	);
+
+	if (result != D3D_OK) {
+		return NULL;
+	}
+
+	return texture;
 }
